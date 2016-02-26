@@ -7,16 +7,38 @@ public class Spawner : MonoBehaviour {
 
 	void Start () {
 
+
+		StartCoroutine("SpawnHandler");
+	
 	}
 	
 	void Update () {
 
-		if (isTimeToSpawn(enemy))
-			SpawnEnemy();
+//		if (isTimeToSpawn(enemy))
+//			SpawnEnemy();
 	}
 
 
-	public void SpawnEnemy()
+	private IEnumerator SpawnHandler()
+	{
+		EnemyBehavior ninja = enemy.GetComponent<EnemyBehavior>();
+
+		float spawnDelay;
+		float randomX;
+
+		while(true)
+		{     
+			spawnDelay = Random.Range(1f,3f) + ninja.spawnDelay;
+			randomX = Mathf.Round(Random.Range(-5, 5)); 
+
+			yield return new WaitForSeconds(spawnDelay);
+
+			Instantiate(enemy, new Vector2(randomX, transform.position.y), Quaternion.identity);
+		}
+
+	}
+
+	/*public void SpawnEnemy()
 	{
 
 		float randomX = Mathf.Round(Random.Range(-5, 5));
@@ -24,25 +46,23 @@ public class Spawner : MonoBehaviour {
 		Instantiate(enemy, new Vector3(randomX, this.transform.position.y), Quaternion.identity);
 	}
 
+
 	bool isTimeToSpawn(GameObject enemy)
 	{
 		EnemyBehavior ninja = enemy.GetComponent<EnemyBehavior>();
 		
-		float meantSpawnDelay = ninja.spawnFrequency;
-		float spawnsPerSeconds = 1 / ninja.spawnFrequency;
-		
+		float meantSpawnDelay = ninja.spawnDelay;
+
 		if (Time.deltaTime > meantSpawnDelay)
 		{
 			Debug.LogWarning("Spawn rate capped by frame-rate!!!!");
 			return false;
 		}
 		
-		float threshold = spawnsPerSeconds * Time.deltaTime / 4;
+		float threshold = meantSpawnDelay * Time.deltaTime /10;
 
-		print(threshold + " " + spawnsPerSeconds);
-		
 		return (Random.value < threshold);
 			
-	}
+	}*/
 
 }

@@ -7,7 +7,7 @@ public class EnemyBehavior : MonoBehaviour {
 	public int enemySpeed;
 
 	[Range(0,5)]
-	public float spawnFrequency;
+	public int spawnDelay;
 
 	private Rigidbody2D rb;
 
