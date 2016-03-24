@@ -5,11 +5,9 @@ public class EnemyBehavior : MonoBehaviour {
 
 	[Range(0, 10)]
 	public int enemySpeed;
-
 	[Range(0,5)]
 	public int spawnDelay;
-
-	private Rigidbody2D rb;
+	public Rigidbody2D rb;
 
 	void Start () {
 
