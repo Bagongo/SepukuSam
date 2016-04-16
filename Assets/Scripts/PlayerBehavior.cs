@@ -8,11 +8,14 @@ public class PlayerBehavior : MonoBehaviour {
 	public EnemyBehavior hitEnemy;
 
 	private Transform playerTransform;
+	private float playerWidth;
 	private float playerMovement;
 
 	void Start () {
 
-		playerTransform = GetComponent<Transform>();	
+		playerTransform = GetComponent<Transform>();
+		playerWidth = playerTransform.GetComponent<BoxCollider2D>().bounds.size.x;
+
 	}
 	
 	void Update () {
@@ -24,15 +27,27 @@ public class PlayerBehavior : MonoBehaviour {
 
 	void FixedUpdate() {
 
-		Debug.Log("raycasting...");
+		RaycastHit2D hit;
+		float rayXPos = transform.position.x - playerWidth / 2;
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.up, 1f);
+		for(int i=0; i<=2; i++)
+		{
+			Vector3 rayPos = new Vector3 (rayXPos, transform.position.y, 0); 
+			hit = Physics2D.Raycast(rayPos, Vector2.up, .3f);
 
-		if (hit.collider.gameObject.GetComponent<EnemyBehavior>()) 
-        {
-			hitEnemy = hit.collider.gameObject.GetComponent<EnemyBehavior>();
-			hitEnemy.rb.velocity = Vector2.zero;
-	    }
+			if (hit && hit.collider.gameObject.GetComponent<EnemyBehavior>()) 
+	        {
+				hitEnemy = hit.collider.gameObject.GetComponent<EnemyBehavior>();
+
+				if(hitEnemy.isAlive)
+					hitEnemy.killEnemy();
+				//some alternate ways of killing the enemy: 
+				//Destroy(hitEnemy.transform.root.gameObject);
+				//hitEnemy.rb.velocity = Vector2.zero;
+		    }
+
+		    rayXPos += playerWidth / 2;
+		}
     }
 
 	public void MovePlayer(float horizontalInput)
@@ -42,16 +57,5 @@ public class PlayerBehavior : MonoBehaviour {
 		playerMovement += horizontalInput * playerSpeed * Time.deltaTime;
 		playerTransform.position = new Vector2(Mathf.Clamp( playerMovement, -5f, 5f ), 0);
 	}
-
-	/*
-	void OnTriggerEnter2D(Collider2D coll)
-	{
-		if(coll.tag == "Enemy")
-		{
-			 hitEnemy = coll.GetComponent<EnemyBehavior>();
-			 hitEnemy.rb.velocity = Vector2.zero;
-		}
-	}*/
-
 
 }
