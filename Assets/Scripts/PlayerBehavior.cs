@@ -55,7 +55,7 @@ public class PlayerBehavior : MonoBehaviour {
 		//Debug.Log(horizontalInput);
 
 		playerMovement += horizontalInput * playerSpeed * Time.deltaTime;
-		playerTransform.position = new Vector2(Mathf.Clamp( playerMovement, -5f, 5f ), 0);
+		playerTransform.position = new Vector2(Mathf.Clamp( playerMovement, -2.5f, 2.5f ), 0);
 	}
 
 }

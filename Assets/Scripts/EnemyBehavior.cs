@@ -24,7 +24,7 @@ public class EnemyBehavior : MonoBehaviour {
 	void Update () {
 
 		if(lerpVelocity) 
-			DecelearateEnemy(1);
+			DecelerateEnemy(Random.Range(0.5f, 1f));
 
 	}
 
@@ -40,7 +40,7 @@ public class EnemyBehavior : MonoBehaviour {
 		lerpVelocity = true;
 	}
 
-	private void DecelearateEnemy(float decTimeinSecs)
+	private void DecelerateEnemy(float decTimeinSecs)
 	{
 		//Lerping is currently clamped to minimum enemy1 velocity(use global check variable???) 
 		rb.velocity = new Vector2(0, rb.velocity.y - residualYVel * decTimeinSecs/60 );
