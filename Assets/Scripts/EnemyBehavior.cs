@@ -9,15 +9,15 @@ public class EnemyBehavior : MonoBehaviour {
 	public int spawnDelay;
 	[Range(0,5)]
 	public int dodgeSkill;
-	public Sprite[] enmDisguise;
+	public Sprite[] enmDisguise; //move to specific script
 	public Rigidbody2D rb;
 	public bool isAlive;
 	public GameObject blooddrip;
+	public SpriteRenderer enemysprite;
+	public float enemyWidth;
 
 	private bool lerpVelocity;
 	private Vector2 residualVel;
-	private float enemyWidth;
-	private SpriteRenderer enemysprite;
 	private IEnumerator coroutine;
 	private ScoreMan scoreMan;
 	private Animator anim;
@@ -43,42 +43,13 @@ public class EnemyBehavior : MonoBehaviour {
 		isAlive = true;
 		rb.velocity =  new Vector2 (0, - enemySpeed);
 
-		StartCoroutine("RayCast5PerSec");
+
 	}
 	
 	void Update () {
 
 		if(lerpVelocity)
 			DecelerateEnemy(Random.Range(1f, 2f));
-	}
-
-	private IEnumerator RayCast5PerSec() 
-	{
-		while(isAlive)
-		{
-			RaycastHit2D hit;
-			float rayXPos = transform.position.x - enemyWidth / 2;
-
-			for(int i=0; i<=2; i++)
-			{
-				Vector3 rayPos = new Vector3 (rayXPos, transform.position.y, 0); 
-				hit = Physics2D.Raycast(rayPos, Vector2.down, 50f);
-
-				if (hit && hit.collider.gameObject.GetComponent<PlayerBehavior>() && hit.distance >= 2.0f) 
-		        {
-					if(dodgeSkill > 0 && Choose(new float[]{100f - 10*dodgeSkill, 10f*dodgeSkill}) == 1)
-					{
-						StopCoroutine("RayCast5PerSec");
-						StartCoroutine("NinjaLeap");
-						yield break;
-					}
-			    }
-
-			    rayXPos += enemyWidth / 2;
-		    }
-
-			yield return new WaitForSeconds(0.2f);
-		}
 	}
 
 	public void killEnemy()
@@ -117,7 +88,7 @@ public class EnemyBehavior : MonoBehaviour {
 		}
 	}
 
-	float Choose (float[] probs) 
+	public float Choose (float[] probs) 
 	{
         float total = 0;
 
@@ -139,45 +110,6 @@ public class EnemyBehavior : MonoBehaviour {
         }
 
         return probs.Length - 1;
-    }
-
-	private IEnumerator NinjaLeap()
-    {
-		rb.velocity = Vector2.zero;
-
-		while(true)
-		{
-			float tempOpacity = enemysprite.color.a - 0.2f;
-			enemysprite.color = new Color(enemysprite.color.r, enemysprite.color.g, enemysprite.color.b, tempOpacity);
-
-			if(enemysprite.color.a <= 0.0f)
-			{
-				if(transform.position.x < 0)
-					transform.position = new Vector2(transform.position.x + Random.Range(1f, 2f), transform.position.y);
-				else
-					transform.position = new Vector2(transform.position.x - Random.Range(1f, 2f), transform.position.y);
-																					
-				StopCoroutine("NinjaLeap");
-				StartCoroutine("NinjaLeap2");
-			}
-
-			yield return new WaitForSeconds(0.1f); 
-		} 
-	}		 
-
-	private IEnumerator NinjaLeap2()
-    {
-		while(true)
-		{
-			rb.velocity =  new Vector2 (0, - enemySpeed);
-			float tempOpacity = enemysprite.color.a + 0.2f;
-			enemysprite.color = new Color(enemysprite.color.r, enemysprite.color.g, enemysprite.color.b, tempOpacity);
-
-			if(enemysprite.color.a >= 1.0f)
-				StopCoroutine("NinjaLeap2");
-
-			yield return new WaitForSeconds(0.1f); 
-		}		
     }
 
 	private IEnumerator NinjaMutation(int delay)

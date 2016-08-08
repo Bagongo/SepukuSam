@@ -43,7 +43,7 @@ public class Spawner : MonoBehaviour {
 	{
 		while(true)
 		{ 
-			int npcsQuant = HowManyNPcs();
+			int npcsQuant = 8; //HowManyNPcs();
 			npc = npcs[Random.Range(0, npcs.Length)]; 
 			float spawnDelay = Random.Range(3f, 5f);
 			float randomX = Random.Range(Lboundary, Rboundary);
@@ -92,8 +92,10 @@ public class Spawner : MonoBehaviour {
 		int spawnDirection;
 		float npcWidth = npc.GetComponent<BoxCollider2D>().size.x;
 		float npcHeight = npc.GetComponent<BoxCollider2D>().size.y;
-		float totalWidth = npcWidth * quantity;
+		float gutterSize = 0.2f;
+		float totalWidth = (npcWidth + gutterSize) * quantity;
 		float spawnSpanX = gameFieldX - totalWidth;
+		bool skipSingleSpawn = false;
 
 		if(Random.value < 0.5)
 		{
@@ -102,19 +104,21 @@ public class Spawner : MonoBehaviour {
 		}
 		else
 		{
-			spawnDirection = -1;
 			randomX = Random.Range(Rboundary - spawnSpanX, Rboundary);
+			spawnDirection = -1;
 		}
 
 		for(int i=1; i <= quantity; i++)
 		{
 			
-			npc = npcs[Random.Range(0, npcs.Length)]; 
+			npc = npcs[Random.Range(0, npcs.Length)];
 
-			Instantiate(npc, new Vector2(randomX, fixedY), Quaternion.identity);
+			if(!skipSingleSpawn)
+				Instantiate(npc, new Vector2(randomX, fixedY), Quaternion.identity);
 
 			if(quantity >= 3)
 			{
+				skipSingleSpawn = Random.value < 0.2f;
 				float changeY = Choose(new float[]{50f, 25f, 25f});
 
 				if(changeY == 0)
@@ -125,7 +129,7 @@ public class Spawner : MonoBehaviour {
 					fixedY -= npcHeight;				
 			}
 				
-			randomX += npcWidth * spawnDirection;
+			randomX += (npcWidth + gutterSize) * spawnDirection;
 		}
 	}
 

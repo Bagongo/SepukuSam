@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class PlayerBehavior : MonoBehaviour {
@@ -6,22 +7,24 @@ public class PlayerBehavior : MonoBehaviour {
 	[Range(0, 20)]	
 	public float playerSpeed;
 	public EnemyBehavior hitEnemy;
+	public float movementRange = 3f;
+	public Text gameOver; 
 
 	private Transform playerTransform;
-	private float playerWidth;
+
 	private float nextPosX;
 	private float pointer_x;
 	private Animator anim;
 	private Vector2 touchStartPos = Vector2.zero;
+	private Animator goverAnim;
 
 
 	void Start () {
 
 		playerTransform = GetComponent<Transform>();
-		playerWidth = playerTransform.GetComponent<BoxCollider2D>().bounds.size.x;
 		anim = GetComponent<Animator>();
 
-		StartCoroutine("RayCast5PerSec");
+		goverAnim = gameOver.GetComponent<Animator>();
 	}
 	
 	void Update () {
@@ -34,73 +37,29 @@ public class PlayerBehavior : MonoBehaviour {
 		
 	}
 
-	private IEnumerator RayCast5PerSec() 
+	void OnTriggerEnter2D(Collider2D coll)
 	{
-		while(true)
+
+		if(coll.gameObject.GetComponent<EnemyBehavior>())
 		{
-			RaycastHit2D hit;
-			float rayXPos = transform.position.x - playerWidth / 2;
+			hitEnemy = coll.gameObject.GetComponent<EnemyBehavior>();
 
-			for(int i=0; i<=2; i++)
-			{
-				Vector3 rayPos = new Vector3 (rayXPos, transform.position.y, 0); 
-				hit = Physics2D.Raycast(rayPos, Vector2.up, .3f);
-				if(hit) 
-		        {
-					if(hit.collider.gameObject.GetComponent<EnemyBehavior>())
-					{
-						hitEnemy = hit.collider.gameObject.GetComponent<EnemyBehavior>();
-
-						if(hitEnemy.isAlive)
-							hitEnemy.killEnemy();
-					}
-					else if(hit.collider.gameObject.GetComponent<NpcBehavior>())
-					{
-						Debug.Log("Game Over....!");	
-						//StopCoroutine("RayCast5PerSec");
-						//yield return new WaitForSeconds(2.0f);
-					}									
-			    }
-
-			    rayXPos += playerWidth / 2;
-			}
-
-			yield return new WaitForSeconds(0.2f);
+			if(hitEnemy.isAlive)
+				hitEnemy.killEnemy();
 		}
+		else if(coll.gameObject.GetComponent<NpcBehavior>())
+		{
+			Debug.Log("Game Over....!");
+			goverAnim.SetTrigger("gameOver");
+		}									
 	}
-
-	void FixedUpdate() {
-
-		RaycastHit2D hit;
-		float rayXPos = transform.position.x - playerWidth / 2;
-
-		for(int i=0; i<=2; i++)
-		{
-			Vector3 rayPos = new Vector3 (rayXPos, transform.position.y, 0); 
-			hit = Physics2D.Raycast(rayPos, Vector2.up, .3f);
-			if(hit) 
-	        {
-				if(hit.collider.gameObject.GetComponent<EnemyBehavior>())
-				{
-					hitEnemy = hit.collider.gameObject.GetComponent<EnemyBehavior>();
-
-					if(hitEnemy.isAlive)
-						hitEnemy.killEnemy();
-				}
-				else if(hit.collider.gameObject.GetComponent<NpcBehavior>())
-					Debug.Log("Game Over....!");				
-		    }
-
-		    rayXPos += playerWidth / 2;
-		}
-    }
 
 	public void MovePlayer(float horizontalInput)
 	{
 
-		Debug.Log(horizontalInput);
+		//Debug.Log(horizontalInput);
 
-		bool onEdge = playerTransform.position.x <= -2.5f || playerTransform.position.x >= 2.5f;
+		bool onEdge = playerTransform.position.x <= -movementRange || playerTransform.position.x >= movementRange;
 		float animSpeed = Mathf.Clamp(Mathf.Abs(horizontalInput) * 1f, 0.5f, 1f);
 		anim.SetFloat("movingSpeed", animSpeed);
 
@@ -114,7 +73,7 @@ public class PlayerBehavior : MonoBehaviour {
 			anim.SetBool("movingR", false);
 		}
 
-		nextPosX = Mathf.Clamp(playerTransform.position.x + (horizontalInput * playerSpeed * Time.deltaTime), -2.5f, 2.5f);
+		nextPosX = Mathf.Clamp(playerTransform.position.x + (horizontalInput * playerSpeed * Time.deltaTime), -movementRange, movementRange);
 
 		playerTransform.position = new Vector2(nextPosX, 0);													
 	}
